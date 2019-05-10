@@ -1,0 +1,16 @@
+<h1 class="display-4 text-center">Your Notes</h1>
+<div class="row">
+    {{#each notes}}
+        <div class="col-sm-3">
+            <div class="card mb-3">
+                <div class="card-body">
+                    <h5 class="card-title">{{this.title}}</h5>
+                    <p class="card-text">{{trimDetails this.details}}</p>  
+                </div>
+                <div class="card-body">
+                    <a href="/notes/{{this._id}}" class="btn btn-primary">See more</a>
+                </div>
+            </div> 
+        </div>
+    {{/each}}
+</div>
