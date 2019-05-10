@@ -3,6 +3,8 @@ const exphbs = require('express-handlebars');
 const mongoose = require('mongoose');
 const bodyParser = require('body-parser');
 const methodOverride = require('method-override');
+const session = require('express-session');
+const flash = require('connect-flash');
 
 const app = express();
 
@@ -37,6 +39,24 @@ app.use(bodyParser.json());
 
 // Method override middleware
 app.use(methodOverride('_method'));
+
+// Session middleware
+app.use(session({
+    secret: 'secret',
+    resave: true,
+    saveUninitialized: true
+  }));
+
+// Connect flash middleware
+app.use(flash());
+
+// Global vars for messages
+app.use((req, res, next) => {
+    res.locals.success_msg = req.flash('success_msg');
+    res.locals.error_msg = req.flash('error_msg');
+    res.locals.error = req.flash('error');
+    next();
+})
 
 
 // Static Routes
@@ -88,6 +108,7 @@ app.put('/notes/:id', (req, res) => {
             details: req.body.details
         }
         Note.findOneAndUpdate({_id: req.params.id}, updNote, () => {
+            req.flash('success_msg', 'Note updated')
             res.redirect('/notes');
         })
     }
@@ -116,6 +137,7 @@ app.post('/notes', (req, res) => {
         new Note(newNote)
             .save()
             .then(note => {
+                req.flash('success_msg', 'Note created');
                 res.redirect('/notes');
             });
     }
@@ -129,7 +151,10 @@ app.get('/notes/:id', (req, res) => {
 
 app.delete('/notes/:id', (req, res) => {
     Note.remove({_id: req.params.id})
-        .then(() => res.redirect('/notes'))
+        .then(() => {
+            req.flash('success_msg', 'Note deleted');
+            res.redirect('/notes');
+        })
         .catch(err => console.log(err));
 })
 
